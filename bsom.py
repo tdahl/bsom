@@ -7,7 +7,7 @@ import Image
 INPUT_SIZE = 3
 NODES_NUMOF = 8
 LEARNING_RATE = 0.05
-PASSES_NUMOF = 5
+PASSES_NUMOF = 4
 DEFAULT_IMAGE_NAME = "image.bmp"
 # AVG_DECAY_PERIOD = imsize # Assigned below
 
@@ -128,7 +128,7 @@ p2s = [0.0 for i in range(NODES_NUMOF)]
 som = copy.deepcopy(bsom)
 somupdatecounts = [0 for i in range(NODES_NUMOF)]
 
-# k means initialisation
+# k-means initialisation
 kmeans = []
 for r in range(NODES_NUMOF):
 	h = random.randint(0,im.size[0]-1)
@@ -140,6 +140,7 @@ for r in range(NODES_NUMOF):
 	for c in range(INPUT_SIZE):
 		mean[c]=rgb[c]/255.0
 	kmeans.append(mean)
+km_counts = [1 for i in range(NODES_NUMOF)]
 
 # Learning loop
 print "BSOM",bsom
@@ -188,8 +189,9 @@ for passnum in range(PASSES_NUMOF):
 	
 			winz = find_winner_kmeans()
 			for i in range(INPUT_SIZE):
-				kmeansupdatessum+=abs((xs[i]-kmeans[winz][i])*LEARNING_RATE)
-				kmeans[winz][i]+=(xs[i]-kmeans[winz][i])*LEARNING_RATE
+				oldkmean = kmeans[winz][i]
+				kmeans[winz][i]=(xs[i]*km_counts[winz]/(km_counts[winz]+1)+kmeans[winz][i]*km_counts[winz]/(km_counts[winz]+1))
+				kmeansupdatessum+=abs(kmeans[winz][i]-oldkmean)
 	#calc_p2s()
 	#for i in range(NODES_NUMOF):
 	#	print (int(som[i][0]*255.0),int(som[i][1]*255.0),int(som[i][2]*255.0))
