@@ -1,0 +1,1 @@
+ps | grep display | awk '{print $1}' | xargs kill -9
